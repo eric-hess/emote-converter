@@ -1,0 +1,11 @@
+name: release
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  release:
+    uses: eric-hess/reusable-workflows/.github/workflows/release.yml@main
+    with:
+      dockerfile_location: docker/Dockerfile
+      platforms: linux/amd64,linux/arm/v7,linux/arm64/v8
