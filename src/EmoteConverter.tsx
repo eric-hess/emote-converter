@@ -1,18 +1,15 @@
 import React from 'react';
 import {Button, Grid} from '@mui/material';
 import Pica from 'pica';
+import {SizeOption} from './SizeSelector';
 
 interface PropsInterface {
     image: string;
-};
+    sizes: SizeOption[];
+}
 
 const EmoteConverter = (props: PropsInterface) => {
-    const sizes = {
-        twitch: [28, 56, 112],
-        discord: [32],
-    };
-
-    const downloadEmote = (size: number) => {
+    const downloadEmote = (height: number, width: number) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
@@ -21,27 +18,24 @@ const EmoteConverter = (props: PropsInterface) => {
         img.crossOrigin = 'Anonymous';
 
         img.onload = async () => {
-            canvas.width = size;
-            canvas.height = size;
+            canvas.height = height;
+            canvas.width = width;
             ctx!.imageSmoothingEnabled = false;
 
             const resizedImage = await pica.resize(img, canvas, {
                 filter: 'mks2013'
             });
 
-            ctx!.drawImage(resizedImage, 0, 0, size, size);
+            ctx!.drawImage(resizedImage, 0, 0, width, height);
 
             const downloadLink = document.createElement('a');
             downloadLink.href = canvas.toDataURL(`image/${props.image.split(';')[0].split('/')[1]}`);
-            downloadLink.download = `emote_${size}.${props.image.split(';')[0].split('/')[1]}`;
+            downloadLink.download = `emote_${height}_${width}.${props.image.split(';')[0].split('/')[1]}`;
             downloadLink.click();
         };
 
         img.src = props.image;
     };
-
-
-
 
     return (
     <Grid
@@ -49,38 +43,24 @@ const EmoteConverter = (props: PropsInterface) => {
         spacing={2}
     >
         {
-            Object.entries(sizes).map(([key, value]) => (
-                <React.Fragment
-                    key={key}
+            props.sizes.map(entry => (
+                <Grid
+                    item
+                    xs={4}
+                    key={`${entry.size.height}x${entry.size.width}`}
                 >
-                    <Grid
-                        item
-                        xs={12}
+                    <Button
+                        variant='contained'
+                        onClick={() => downloadEmote(entry.size.height, entry.size.width)}
                     >
-                        {key}
-                    </Grid>
-                    {
-                        value.map((size) => (
-                            <Grid
-                                item
-                                xs={4}
-                                key={size}
-                            >
-                                <Button
-                                    variant='contained'
-                                    onClick={() => downloadEmote(size)}
-                                >
-                                    Download {size}px
-                                </Button>
-                                <img
-                                    src={props.image}
-                                    alt={`Emote ${size}`}
-                                    style={{ width: `${size}px`, height: `${size}px` }}
-                                />
-                            </Grid>
-                        ))
-                    }
-                </React.Fragment>
+                        Download {entry.group} {entry.size.height}x{entry.size.width}
+                    </Button>
+                    <img
+                        src={props.image}
+                        alt={`Emote ${entry.size.height}x${entry.size.width}`}
+                        style={{ height: `${entry.size.height}px`, width: `${entry.size.width}px` }}
+                    />
+                </Grid>
             ))
         }
     </Grid>

@@ -3,9 +3,11 @@ import {Button, Container, Grid} from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import EmoteConverter from './EmoteConverter';
 import HiddenInput from './HiddenInput';
+import SizeSelector, {defaultSizes as SizeSelectorDefaultSizes, SizeOption} from './SizeSelector';
 
 const App = () => {
     const [originalImage, setOriginalImage] = React.useState<string| undefined>(undefined);
+    const [sizes, setSizes] = React.useState<SizeOption[]>(SizeSelectorDefaultSizes);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file =event.target.files?.item(0);
@@ -28,14 +30,19 @@ const App = () => {
             <Grid
                 container
                 spacing={2}
-                alignContent='center'
-                alignItems='center'
             >
                 <Grid
                     item
                     xs={12}
-                    alignContent='center'
-                    alignItems='center'
+                >
+                    <SizeSelector
+                        sizes={sizes}
+                        onChange={setSizes}
+                    />
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
                 >
                     <Button
                         component='label'
@@ -72,6 +79,7 @@ const App = () => {
                         >
                             <EmoteConverter 
                                 image={originalImage}
+                                sizes={sizes}
                             />
                         </Grid>
                     ) : null
