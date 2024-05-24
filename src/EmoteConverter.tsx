@@ -1,5 +1,6 @@
 import React from 'react';
 import {Button, Grid} from '@mui/material';
+import Pica from 'pica';
 
 interface PropsInterface {
     image: string;
@@ -8,31 +9,41 @@ interface PropsInterface {
 const EmoteConverter = (props: PropsInterface) => {
     const sizes = {
         twitch: [28, 56, 112],
-        discrod: [32],
+        discord: [32],
     };
 
     const downloadEmote = (size: number) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
-      
-        img.crossOrigin = 'Anonymous';
-      
-        img.onload = () => {
-          canvas.width = size;
-          canvas.height = size;
-          ctx?.drawImage(img, 0, 0, img.width, img.height, 0, 0, size, size);
-      
-          const downloadLink = document.createElement('a');
-          downloadLink.href = canvas.toDataURL(`image/${props.image.split(';')[0].split('/')[1]}`);
-          downloadLink.download = `emote_${size}.${props.image.split(';')[0].split('/')[1]}`;
-          downloadLink.click();
-        };
-      
-        img.src = props.image;
-      };
+        const pica = new Pica();
 
-  return (
+        img.crossOrigin = 'Anonymous';
+
+        img.onload = async () => {
+            canvas.width = size;
+            canvas.height = size;
+            ctx!.imageSmoothingEnabled = false;
+
+            const resizedImage = await pica.resize(img, canvas, {
+                filter: 'mks2013'
+            });
+
+            ctx!.drawImage(resizedImage, 0, 0, size, size);
+
+            const downloadLink = document.createElement('a');
+            downloadLink.href = canvas.toDataURL(`image/${props.image.split(';')[0].split('/')[1]}`);
+            downloadLink.download = `emote_${size}.${props.image.split(';')[0].split('/')[1]}`;
+            downloadLink.click();
+        };
+
+        img.src = props.image;
+    };
+
+
+
+
+    return (
     <Grid
         container
         spacing={2}
